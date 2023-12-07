@@ -2,12 +2,12 @@ fn main() {
     println!("Hello, world!");
 }
 pub fn parse_calibration_string(line: &str) -> Option<u8> {
-    let mut numbers = line.matches(char::is_numeric);
+    let numbers = line.matches(char::is_numeric);
     let pair = numbers.fold(None, |current_pair: Option<(&str, &str)>, elem: &str| {
         current_pair.map_or_else(|| Some((elem, elem)), |(first, _)| Some((first, elem)))
     });
-    pair.map(|(first, last)| String::from(first) + last)
-        .and_then(|num_string| num_string.parse().ok())
+    let string_number = pair.map(|(first, last)| String::from(first) + last);
+    string_number.and_then(|num_string| num_string.parse().ok())
 }
 
 mod test_parse_calibration_string {
@@ -25,7 +25,7 @@ mod test_parse_calibration_string {
 
     #[test]
     fn multiple_numbers() {
-        test_case("i4n354pu4t5", Some(45));
+        test_case("i4n354pu4t5b", Some(45));
     }
     #[test]
     fn no_numbers() {
