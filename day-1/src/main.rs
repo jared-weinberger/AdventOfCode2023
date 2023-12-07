@@ -10,8 +10,9 @@ pub fn parse_calibration_string(line: &str) -> Option<u8> {
     string_number.and_then(|num_string| num_string.parse().ok())
 }
 
+#[cfg(test)]
 mod test_parse_calibration_string {
-    use crate::parse_calibration_string;
+    use super::parse_calibration_string;
 
     #[test]
     fn number_at_beginning() {
@@ -27,6 +28,7 @@ mod test_parse_calibration_string {
     fn multiple_numbers() {
         test_case("i4n354pu4t5b", Some(45));
     }
+
     #[test]
     fn no_numbers() {
         test_case("abcdefg", None);
