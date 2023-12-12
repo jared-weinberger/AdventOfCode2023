@@ -47,17 +47,18 @@ impl DigitMatcher {
     }
 
     fn get_matches<'l>(&self, haystack: &'l str) -> Vec<DigitMatch<'l>> {
-        self.pattern
-            .captures_iter(haystack)
-            .flat_map(|capture: Captures| Self::get_digit_match(capture).to_owned())
+        (0..haystack.len())
+            .filter_map(|start| self.pattern.captures(&haystack[start..]))
+            .map(|capture| Self::get_digit_match(capture).to_owned())
             .collect()
     }
 
-    fn get_digit_match<'l>(capture: Captures<'l>) -> Option<DigitMatch<'l>> {
+    fn get_digit_match<'l>(capture: Captures<'l>) -> DigitMatch<'l> {
         capture
             .get(1)
             .map(|x| DigitMatch::PlainDigit(x.as_str()))
             .or(capture.get(2).map(|x| DigitMatch::WordDigit(x.as_str())))
+            .unwrap()
     }
 }
 
@@ -89,6 +90,32 @@ impl CalibrationParser {
             DigitMatch::WordDigit(w) => Self::parse_word_digit(w),
         }
     }
+    fn get_numbers(input: &str) -> Vec<u32> {
+        let mut numbers: Vec<u32> = Vec::new();
+        for start in 0..input.len() {}
+        numbers
+    }
+
+    const DIGIT_TABLE: [(&'static str, u32); 18] = [
+        ("1", 1),
+        ("2", 2),
+        ("3", 3),
+        ("4", 4),
+        ("5", 5),
+        ("6", 6),
+        ("7", 7),
+        ("8", 8),
+        ("9", 9),
+        ("one", 1),
+        ("two", 2),
+        ("three", 3),
+        ("four", 4),
+        ("five", 5),
+        ("six", 6),
+        ("seven", 7),
+        ("eight", 8),
+        ("nine", 9),
+    ];
 
     fn parse_word_digit(text: &str) -> Option<u32> {
         match text {
@@ -163,6 +190,7 @@ mod test_parse_calibration_string {
         let cases = [
             ("two1nine", 29),
             ("eightwothree", 83),
+            ("eightwo", 82),
             ("abcone2threexyz", 13),
             ("xtwone3four", 24),
             ("4nineeightseven2", 42),
@@ -172,6 +200,14 @@ mod test_parse_calibration_string {
         for (text, val) in cases {
             test_case(text, Some(val));
         }
+    }
+    #[test]
+    fn stuff() {
+        let pattern = r"^\d|one|two|three|four|five|six|seven|eight|nine";
+        let regex = Regex::new(pattern).unwrap();
+        let searchable = "oneblahtwothree";
+        let m = regex.captures_at(searchable, 2).unwrap();
+        println!("{}", m.get(0).unwrap().as_str())
     }
 
     fn test_case(input: &str, expected_result: Option<u32>) {
